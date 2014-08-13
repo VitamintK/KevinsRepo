@@ -8,14 +8,25 @@ class Board:
     def vis_with_num(self):
         self.visualize()
         print ' ' + ' '.join([str(x) for x in range(len(self.board))]) + ' '
-    def check_game_over_with_piece(self,x,y): #or do I make piece a class?
+    def is_game_over_with_piece(self,x,y): #or do I make piece a class?
         #bad implementation probably
         piece_value = self.board[x][y]
         for streak in self.get_surrounding_streaks(piece_value,x,y):
             if streak >= self.winlength:
                 return True
-        #check for tie (board full)
-        
+
+        if self.col_is_full(self.board[x]):
+            for i in self.board:
+                if not self.col_is_full(i):
+                    break
+            else:
+                return True
+
+    def col_is_full(self,col):
+        if ' ' in col:
+            return False
+        else:
+            return True        
 
     def get_surrounding_streaks(self,value,x,y):
         if self.board[x][y] == value:
@@ -57,8 +68,11 @@ class Player:
 class Human(Player):
     def move(self):
         while True:
+            col = raw_input("which column? ")
+            if col == 'q':
+                return 'quit'
             try:
-                col = int(raw_input("which column? "))
+                col = int(col)
                 if col in range(len(self.board.board)):
                     piece = self.board.add_piece(col,self.value)
                     if piece == False:
@@ -67,8 +81,7 @@ class Human(Player):
                         return piece
                 else: print "not a valid column"
             except ValueError:
-                print "that's not a number"
-            
+                print "that's not a number.  type 'q' to quit."
             
             
 
@@ -77,8 +90,8 @@ class AI(Player):
         pass
             
 class Game:
-    def __init__(self):
-        self.game_board = Board(7,6,4)
+    def __init__(self,x,y,winlen):
+        self.game_board = Board(x,y,winlen)
         self.players = [Human('X',self.game_board), Human('O',self.game_board)]
         self.turnplnum = 0
         self.turnpl = self.players[self.turnplnum]
@@ -87,7 +100,10 @@ class Game:
         while True:
             print ''
             self.game_board.vis_with_num()
-            if self.game_board.check_game_over_with_piece(*self.turn()):
+            turn_res = self.turn()
+            if turn_res == 'quit':
+                break
+            if self.game_board.is_game_over_with_piece(*turn_res):
                 print ''
                 self.game_board.vis_with_num()
                 break
@@ -102,3 +118,5 @@ class Game:
     def turn(self):
         return self.turnpl.move()
         #return self.game_board.add_piece(col,self.turnpl.value)
+
+g = Game(7,6,4)
