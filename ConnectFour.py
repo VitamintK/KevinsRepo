@@ -2,6 +2,12 @@ class Board:
     def __init__(self,x,y,winlength):
         self.board = [[' ' for i in xrange(y)] for j in xrange(x)]
         self.winlength = winlength
+
+    def clear(self):
+        self.board = [[' ' for i in j] for j in self.board]
+        #change this to change the value of each element in self.board
+        #to ' ' instead of creating an entirely new list.
+
     def visualize(self):
         for column in [list(i) for i in reversed(zip(*self.board))]:
             print '|' + ".".join(column) + '|'
