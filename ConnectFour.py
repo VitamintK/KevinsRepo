@@ -1,3 +1,5 @@
+import random
+
 class Board:
     def __init__(self,x,y,winlength):
         self.board = [[' ' for i in xrange(y)] for j in xrange(x)]
@@ -92,13 +94,28 @@ class Human(Player):
             
 
 class AI(Player):
+    pass
+
+class ShitAI(AI):
     def move(self):
-        pass
+        while True:
+            col_num = random.randint(0,len(self.board.board)-1)
+            if not self.board.col_is_full(self.board.board[col_num]):
+            #get col_is_full to accept col num instead?
+                print ' '*(1 + col_num * 2) + 'V'
+                return self.board.add_piece(col_num, self.value)
             
+
+#when opponent plays a move, look for streaks surrounding the piece which is
+#freshly opened up - aka the space directly above the piece that the opponent
+#just played.  Instead of just streaks of one value, modify get_streak() to look for
+#streaks of all values besides opponent values - aka, if AI is 'x', look for streaks
+#of all blank spaces and 'x's.
+
 class Game:
     def __init__(self,x,y,winlen):
         self.game_board = Board(x,y,winlen)
-        self.players = [Human('X',self.game_board), Human('O',self.game_board)]
+        self.players = [ShitAI('X',self.game_board), ShitAI('O',self.game_board)]
         self.turnplnum = 0
         self.turnpl = self.players[self.turnplnum]
         self.play()
