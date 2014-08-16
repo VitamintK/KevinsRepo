@@ -1,4 +1,5 @@
 import random
+import numpy
 
 class Board:
     def __init__(self,x,y,winlength):
@@ -21,14 +22,14 @@ class Board:
         piece_value = self.board[x][y]
         for streak in self.get_surrounding_streaks(piece_value,x,y):
             if streak >= self.winlength:
-                return True
+                return piece_value
 
         if self.col_is_full(self.board[x]):
             for i in self.board:
                 if not self.col_is_full(i):
                     break
             else:
-                return True
+                return ' '
 
     def col_is_full(self,col):
         if ' ' in col:
@@ -104,7 +105,15 @@ class ShitAI(AI):
             #get col_is_full to accept col num instead?
                 print ' '*(1 + col_num * 2) + 'V'
                 return self.board.add_piece(col_num, self.value)
-            
+
+class trashAI(AI):
+    def move(self):
+        while True:
+            col_num = numpy.random.binomial(6,0.5)
+            if not self.board.col_is_full(self.board.board[col_num]):
+            #get col_is_full to accept col num instead?
+                print ' '*(1 + col_num * 2) + 'V'
+                return self.board.add_piece(col_num, self.value)            
 
 #when opponent plays a move, look for streaks surrounding the piece which is
 #freshly opened up - aka the space directly above the piece that the opponent
@@ -115,21 +124,22 @@ class ShitAI(AI):
 class Game:
     def __init__(self,x,y,winlen):
         self.game_board = Board(x,y,winlen)
-        self.players = [ShitAI('X',self.game_board), ShitAI('O',self.game_board)]
+        self.players = [trashAI('X',self.game_board), ShitAI('O',self.game_board)]
         self.turnplnum = 0
         self.turnpl = self.players[self.turnplnum]
         self.play()
-    def play(self):
+    def play(self): #make this function better!!!!!
         while True:
             print ''
             self.game_board.vis_with_num()
             turn_res = self.turn()
             if turn_res == 'quit':
                 break
-            if self.game_board.is_game_over_with_piece(*turn_res):
+            winner = self.game_board.is_game_over_with_piece(*turn_res)
+            if winner:
                 print ''
                 self.game_board.vis_with_num()
-                break
+                return winner
             else:
                 newturnplnum = self.turnplnum + 1
                 if newturnplnum >= len(self.players):
@@ -143,3 +153,10 @@ class Game:
         #return self.game_board.add_piece(col,self.turnpl.value)
 
 g = Game(7,6,4)
+
+def test(amt):
+    counter = {'X':0, 'O':0, 'tie':0}
+    for i in xrange(amt):
+        g.game_board.clear()
+        counter[g.play()]+=1
+    return counter
