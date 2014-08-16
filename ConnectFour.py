@@ -35,7 +35,7 @@ class Board:
         if ' ' in col:
             return False
         else:
-            return True        
+            return True        #replace usage of this with next_space and delete this method.
 
     def get_surrounding_streaks(self,value,x,y):
         if self.board[x][y] == value:
@@ -55,13 +55,20 @@ class Board:
                 return streak
         except IndexError:
             return streak
-    
-    def add_piece(self,column,piece):
-        for index, space in enumerate(self.board[column]):
+
+    def next_space(self,col):
+        for index, space in enumerate(col):
             if space == ' ':
-                self.board[column][index] = piece
-                return column, index
+                return index
         return False
+
+    def add_piece(self,col_num,piece): #move piece to first parameter
+        next_space = self.next_space(self.board[col_num])
+        if next_space is not False:
+            self.board[col_num][next_space] = piece
+            return col_num, next_space
+        else:
+            return False
 
 #class Piece:
 #    def __init__(self,value):
@@ -103,7 +110,7 @@ class ShitAI(AI):
             col_num = random.randint(0,len(self.board.board)-1)
             if not self.board.col_is_full(self.board.board[col_num]):
             #get col_is_full to accept col num instead?
-                print ' '*(1 + col_num * 2) + 'V'
+                #print ' '*(1 + col_num * 2) + 'V'
                 return self.board.add_piece(col_num, self.value)
 
 class trashAI(AI):
@@ -112,8 +119,32 @@ class trashAI(AI):
             col_num = numpy.random.binomial(6,0.5)
             if not self.board.col_is_full(self.board.board[col_num]):
             #get col_is_full to accept col num instead?
-                print ' '*(1 + col_num * 2) + 'V'
-                return self.board.add_piece(col_num, self.value)            
+                #print ' '*(1 + col_num * 2) + 'V'
+                return self.board.add_piece(col_num, self.value)
+
+class dumbAI(AI):
+    def move(self):
+        streaks = [max(x) for x in zip(list(self.max_surrounding_streaks('O')), list(self.max_surrounding_streaks('X')))]
+        try:
+            return self.board.add_piece(streaks.index(max(streaks)), self.value)
+        except ValueError:
+            print "valueerror"
+            while True:
+                col_num = numpy.random.binomial(6,0.5)
+                if not self.board.col_is_full(self.board.board[col_num]):
+                #get col_is_full to accept col num instead?
+                #print ' '*(1 + col_num * 2) + 'V'
+                    return self.board.add_piece(col_num, self.value)
+    def max_surrounding_streaks(self, value = None):
+        if value is None:
+            value = self.value
+        for col_num, col in enumerate(self.board.board):
+            next_space = self.board.next_space(col)
+            if next_space is not False:
+                yield max(self.board.get_surrounding_streaks(value,col_num,next_space))
+            else:
+                yield False
+            
 
 #when opponent plays a move, look for streaks surrounding the piece which is
 #freshly opened up - aka the space directly above the piece that the opponent
@@ -124,7 +155,7 @@ class trashAI(AI):
 class Game:
     def __init__(self,x,y,winlen):
         self.game_board = Board(x,y,winlen)
-        self.players = [trashAI('X',self.game_board), ShitAI('O',self.game_board)]
+        self.players = [dumbAI('X',self.game_board), dumbAI('O',self.game_board)]
         self.turnplnum = 0
         self.turnpl = self.players[self.turnplnum]
         self.play()
@@ -155,7 +186,7 @@ class Game:
 g = Game(7,6,4)
 
 def test(amt):
-    counter = {'X':0, 'O':0, 'tie':0}
+    counter = {'X':0, 'O':0, ' ':0}
     for i in xrange(amt):
         g.game_board.clear()
         counter[g.play()]+=1
