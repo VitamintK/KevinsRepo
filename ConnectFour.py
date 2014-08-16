@@ -125,10 +125,9 @@ class trashAI(AI):
 class dumbAI(AI):
     def move(self):
         streaks = [max(x) for x in zip(list(self.max_surrounding_streaks('O')), list(self.max_surrounding_streaks('X')))]
-        try:
+        if max(streaks) > 0:
             return self.board.add_piece(streaks.index(max(streaks)), self.value)
-        except ValueError:
-            print "valueerror"
+        else:
             while True:
                 col_num = numpy.random.binomial(6,0.5)
                 if not self.board.col_is_full(self.board.board[col_num]):
@@ -144,6 +143,24 @@ class dumbAI(AI):
                 yield max(self.board.get_surrounding_streaks(value,col_num,next_space))
             else:
                 yield False
+
+class 3yoAI(dumbAI):
+    """This AI is as smart as a 3 year old.
+    It plays like dumbAI (placing its piece where it creates the longest streak of its own pieces
+    OR prevents a longer streak of opponent pieces), BUT without as extreme short-sightedness, because
+    3yoAI will not place a piece that will allow its opponent to win the game immediately."""
+    def move(self):
+        streaks = [max(x) for x in zip(list(self.max_surrounding_streaks('O')), list(self.max_surrounding_streaks('X')))]
+        if max(streaks) > 0:
+            
+            return self.board.add_piece(streaks.index(max(streaks)), self.value)
+        else:
+            while True:
+                col_num = numpy.random.binomial(6,0.5)
+                if not self.board.col_is_full(self.board.board[col_num]):
+                #get col_is_full to accept col num instead?
+                #print ' '*(1 + col_num * 2) + 'V'
+                    return self.board.add_piece(col_num, self.value) 
             
 
 #when opponent plays a move, look for streaks surrounding the piece which is
@@ -155,7 +172,7 @@ class dumbAI(AI):
 class Game:
     def __init__(self,x,y,winlen):
         self.game_board = Board(x,y,winlen)
-        self.players = [dumbAI('X',self.game_board), dumbAI('O',self.game_board)]
+        self.players = [Human('X',self.game_board), dumbAI('O',self.game_board)]
         self.turnplnum = 0
         self.turnpl = self.players[self.turnplnum]
         self.play()
