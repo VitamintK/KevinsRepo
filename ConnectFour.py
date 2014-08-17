@@ -160,25 +160,11 @@ class InfantAI(DumbAI):
                 and max(self.board.get_surrounding_streaks(
                 'X',streaks.index(max(streaks)),
                 self.board.next_space(self.board.board[streaks.index(max(streaks))]) + 1)) < 3)):
-                """try:
-                    print (max(self.board.get_surrounding_streaks(
-                    'O',streaks.index(max(streaks)),
-                    self.board.next_space(self.board.board[streaks.index(max(streaks))]) + 1)))
-                except:
-                    print 'top'
-                try:
-                    print (max(self.board.get_surrounding_streaks(
-                    'X',streaks.index(max(streaks)),
-                    self.board.next_space(self.board.board[streaks.index(max(streaks))]) + 1)))
-                except:
-                    print 'top'"""
 
                 return self.board.add_piece(streaks.index(max(streaks)), self.value)
             else:
-                #print "not blocking myself! infant power!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
                 m1, m2 = (None,None), (None,None)
                 for ind,x in enumerate(streaks):
-                    #print x
                     if x > m1[1]:
                         m1, m2 = (ind,x), m1
                     elif x > m2[1] or m2[1] is False:
@@ -208,20 +194,20 @@ class InfantAI(DumbAI):
 class Game:
     def __init__(self,x,y,winlen):
         self.game_board = Board(x,y,winlen)
-        self.players = [InfantAI('X',self.game_board), DumbAI('O',self.game_board)]
+        self.players = [InfantAI('X',self.game_board), InfantAI('O',self.game_board)]
         self.turnplnum = 0
         self.turnpl = self.players[self.turnplnum]
     def play(self): #make this function better!!!!!
         while True:
-            #print ''
-            #self.game_board.vis_with_num()
+            print ''
+            self.game_board.vis_with_num()
             turn_res = self.turn()
             if turn_res == 'quit':
                 break
             winner = self.game_board.is_game_over_with_piece(*turn_res)
             if winner:
-                #print ''
-                #self.game_board.vis_with_num()
+                print ''
+                self.game_board.vis_with_num()
                 return winner
             else:
                 newturnplnum = self.turnplnum + 1
@@ -236,7 +222,7 @@ class Game:
         #return self.game_board.add_piece(col,self.turnpl.value)
 
 g = Game(7,6,4)
-g.play()
+print g.play()
 
 def test(amt):
     counter = {'X':0, 'O':0, ' ':0}
