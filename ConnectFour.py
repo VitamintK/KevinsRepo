@@ -134,6 +134,7 @@ class dumbAI(AI):
                 #get col_is_full to accept col num instead?
                 #print ' '*(1 + col_num * 2) + 'V'
                     return self.board.add_piece(col_num, self.value)
+
     def max_surrounding_streaks(self, value = None):
         if value is None:
             value = self.value
@@ -144,7 +145,7 @@ class dumbAI(AI):
             else:
                 yield False
 
-class 3yoAI(dumbAI):
+class infantAI(dumbAI):
     """This AI is as smart as a 3 year old.
     It plays like dumbAI (placing its piece where it creates the longest streak of its own pieces
     OR prevents a longer streak of opponent pieces), BUT without as extreme short-sightedness, because
@@ -152,8 +153,41 @@ class 3yoAI(dumbAI):
     def move(self):
         streaks = [max(x) for x in zip(list(self.max_surrounding_streaks('O')), list(self.max_surrounding_streaks('X')))]
         if max(streaks) > 0:
-            
-            return self.board.add_piece(streaks.index(max(streaks)), self.value)
+            if (not self.board.next_space(self.board.board[streaks.index(max(streaks))]) + 1 < len(self.board.board[0])) or (
+                max(streaks) >= 3 or (max(self.board.get_surrounding_streaks(
+                'O',streaks.index(max(streaks)),
+                self.board.next_space(self.board.board[streaks.index(max(streaks))]) + 1)) < 3
+                and max(self.board.get_surrounding_streaks(
+                'X',streaks.index(max(streaks)),
+                self.board.next_space(self.board.board[streaks.index(max(streaks))]) + 1)) < 3)):
+                try:
+                    print (max(self.board.get_surrounding_streaks(
+                    'O',streaks.index(max(streaks)),
+                    self.board.next_space(self.board.board[streaks.index(max(streaks))]) + 1)))
+                except:
+                    print 'top'
+                try:
+                    print (max(self.board.get_surrounding_streaks(
+                    'X',streaks.index(max(streaks)),
+                    self.board.next_space(self.board.board[streaks.index(max(streaks))]) + 1)))
+                except:
+                    print 'top'
+
+                return self.board.add_piece(streaks.index(max(streaks)), self.value)
+            else:
+                print "not blocking myself! infant power!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+                m1, m2 = (None,None), (None,None)
+                for ind,x in enumerate(streaks):
+                    print x
+                    if x > m1[1]:
+                        m1, m2 = (ind,x), m1
+                    elif x > m2[1] or m2 is False:
+                        m2 = (ind,x)
+                print m1, ' is best'
+                print m2, ' is second best'
+                return self.board.add_piece(m2[0], self.value)
+            #streaks.index(sorted(streaks)[-2])
+
         else:
             while True:
                 col_num = numpy.random.binomial(6,0.5)
@@ -172,10 +206,9 @@ class 3yoAI(dumbAI):
 class Game:
     def __init__(self,x,y,winlen):
         self.game_board = Board(x,y,winlen)
-        self.players = [Human('X',self.game_board), dumbAI('O',self.game_board)]
+        self.players = [infantAI('X',self.game_board), dumbAI('O',self.game_board)]
         self.turnplnum = 0
         self.turnpl = self.players[self.turnplnum]
-        self.play()
     def play(self): #make this function better!!!!!
         while True:
             print ''
@@ -201,6 +234,7 @@ class Game:
         #return self.game_board.add_piece(col,self.turnpl.value)
 
 g = Game(7,6,4)
+g.play()
 
 def test(amt):
     counter = {'X':0, 'O':0, ' ':0}
