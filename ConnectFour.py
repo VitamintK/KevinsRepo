@@ -113,7 +113,7 @@ class ShitAI(AI):
                 #print ' '*(1 + col_num * 2) + 'V'
                 return self.board.add_piece(col_num, self.value)
 
-class trashAI(AI):
+class TrashAI(AI):
     def move(self):
         while True:
             col_num = numpy.random.binomial(6,0.5)
@@ -122,7 +122,7 @@ class trashAI(AI):
                 #print ' '*(1 + col_num * 2) + 'V'
                 return self.board.add_piece(col_num, self.value)
 
-class dumbAI(AI):
+class DumbAI(AI):
     def move(self):
         streaks = [max(x) for x in zip(list(self.max_surrounding_streaks('O')), list(self.max_surrounding_streaks('X')))]
         if max(streaks) > 0:
@@ -145,7 +145,7 @@ class dumbAI(AI):
             else:
                 yield False
 
-class infantAI(dumbAI):
+class InfantAI(DumbAI):
     """This AI is as smart as a 3 year old.
     It plays like dumbAI (placing its piece where it creates the longest streak of its own pieces
     OR prevents a longer streak of opponent pieces), BUT without as extreme short-sightedness, because
@@ -160,7 +160,7 @@ class infantAI(dumbAI):
                 and max(self.board.get_surrounding_streaks(
                 'X',streaks.index(max(streaks)),
                 self.board.next_space(self.board.board[streaks.index(max(streaks))]) + 1)) < 3)):
-                try:
+                """try:
                     print (max(self.board.get_surrounding_streaks(
                     'O',streaks.index(max(streaks)),
                     self.board.next_space(self.board.board[streaks.index(max(streaks))]) + 1)))
@@ -171,21 +171,23 @@ class infantAI(dumbAI):
                     'X',streaks.index(max(streaks)),
                     self.board.next_space(self.board.board[streaks.index(max(streaks))]) + 1)))
                 except:
-                    print 'top'
+                    print 'top'"""
 
                 return self.board.add_piece(streaks.index(max(streaks)), self.value)
             else:
-                print "not blocking myself! infant power!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+                #print "not blocking myself! infant power!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
                 m1, m2 = (None,None), (None,None)
                 for ind,x in enumerate(streaks):
-                    print x
+                    #print x
                     if x > m1[1]:
                         m1, m2 = (ind,x), m1
-                    elif x > m2[1] or m2 is False:
+                    elif x > m2[1] or m2[1] is False:
                         m2 = (ind,x)
-                print m1, ' is best'
-                print m2, ' is second best'
-                return self.board.add_piece(m2[0], self.value)
+                 #THIS NEEDS TO BE RECURSIVE: M2 CAN ALSO BE DETRIMENTAL TO WINNING!##################################################
+                if m2[1] is False:
+                    return self.board.add_piece(m1[0], self.value)
+                else:
+                    return self.board.add_piece(m2[0], self.value)
             #streaks.index(sorted(streaks)[-2])
 
         else:
@@ -206,20 +208,20 @@ class infantAI(dumbAI):
 class Game:
     def __init__(self,x,y,winlen):
         self.game_board = Board(x,y,winlen)
-        self.players = [infantAI('X',self.game_board), dumbAI('O',self.game_board)]
+        self.players = [InfantAI('X',self.game_board), DumbAI('O',self.game_board)]
         self.turnplnum = 0
         self.turnpl = self.players[self.turnplnum]
     def play(self): #make this function better!!!!!
         while True:
-            print ''
-            self.game_board.vis_with_num()
+            #print ''
+            #self.game_board.vis_with_num()
             turn_res = self.turn()
             if turn_res == 'quit':
                 break
             winner = self.game_board.is_game_over_with_piece(*turn_res)
             if winner:
-                print ''
-                self.game_board.vis_with_num()
+                #print ''
+                #self.game_board.vis_with_num()
                 return winner
             else:
                 newturnplnum = self.turnplnum + 1
