@@ -157,15 +157,13 @@ class InfantAI(DumbAI):
         streaks = [max(x) for x in zip(*[list(self.max_surrounding_streaks(player.value)) for player in self.players])]
         sorted_streaks = sorted(enumerate(streaks), key = lambda x: x[1], reverse = True) #(index, streak value) ordered by highest value first.
         if sorted_streaks[0][1] <= 0: #CHANGE THIS TO A SUPER CALL FROM SHITAI
-            print "line 160"
             while True:
                 col_num = numpy.random.binomial(len(self.board.board)-1, 0.5)
                 if not self.board.col_is_full(self.board.board[col_num]):
                 #get col_is_full to accept col num instead?
                 #print ' '*(1 + col_num * 2) + 'V'
-                    return self.board.add_piece(13, self.value) #change this back to normal later (col_num)
+                    return self.board.add_piece(col_num, self.value) #change this back to normal later (col_num)
         for considered_column in sorted_streaks:
-            print considered_column[0]
             if considered_column[1] is not False:
                 if (not self.board.next_space(self.board.board[considered_column[0]]) + 1 < len(self.board.board[considered_column[0]])) or (
                     considered_column[1] >= self.board.winlength - 1 or (
@@ -175,7 +173,7 @@ class InfantAI(DumbAI):
                     and max(self.board.get_surrounding_streaks(
                     'X',considered_column[0],
                     self.board.next_space(self.board.board[considered_column[0]]) + 1)) < self.board.winlength - 1)):
-                    try:
+                    """try:
                         print 'O', list(self.board.get_surrounding_streaks(
                     'O',considered_column[0],
                     self.board.next_space(self.board.board[considered_column[0]]) + 1))
@@ -186,16 +184,10 @@ class InfantAI(DumbAI):
                     'X',considered_column[0],
                     self.board.next_space(self.board.board[considered_column[0]]) + 1))
                     except:
-                        print 'top'
+                        print 'top'"""
                     return self.board.add_piece(considered_column[0], self.value)        
         else:
-            print "line 179"
-            while True: #CHANGE THIS TO A SUPER CALL FROM SHITAI
-                col_num = numpy.random.binomial(len(self.board.board)-1, 0.5)
-                if not self.board.col_is_full(self.board.board[col_num]):
-                #get col_is_full to accept col num instead?
-                #print ' '*(1 + col_num * 2) + 'V'
-                    return self.board.add_piece(col_num, self.value) 
+            return self.board.add_piece(sorted_streaks[0][0], self.value) #this should prefer blocking self over losing immediately
             
 
 #when opponent plays a move, look for streaks surrounding the piece which is
@@ -207,7 +199,7 @@ class InfantAI(DumbAI):
 class Game:
     def __init__(self,x,y,winlen):
         self.game_board = Board(x,y,winlen)
-        self.players = [InfantAI('X',self.game_board), InfantAI('O',self.game_board)]
+        self.players = [InfantAI('X',self.game_board), Human('O',self.game_board)]
         for player in self.players:
             player.players = self.players
         self.turnplnum = 0
@@ -237,7 +229,7 @@ class Game:
         return self.turnpl.move()
         #return self.game_board.add_piece(col,self.turnpl.value)
 
-g = Game(30,30,5)
+g = Game(7,6,4)
 print g.play()
 
 def test(amt):
