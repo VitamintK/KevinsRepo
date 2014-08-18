@@ -173,7 +173,7 @@ class InfantAI(DumbAI):
                     'O',considered_column[0],
                     self.board.next_space(self.board.board[considered_column[0]]) + 1)) < self.board.winlength - 1
                     and max(self.board.get_surrounding_streaks(
-                    'X',streaks.index(considered_column[1]),
+                    'X',considered_column[0],
                     self.board.next_space(self.board.board[considered_column[0]]) + 1)) < self.board.winlength - 1)):
                     try:
                         print 'O', list(self.board.get_surrounding_streaks(
@@ -182,8 +182,8 @@ class InfantAI(DumbAI):
                     except:
                         print 'top'
                     try:
-                        print 'X', list(self.board.get_surrounding_streaks(
-                    'X',streaks.index(considered_column[1]),
+                        print 'X', considered_column[0], self.board.next_space(self.board.board[considered_column[0]]) + 1, list(self.board.get_surrounding_streaks(
+                    'X',considered_column[0],
                     self.board.next_space(self.board.board[considered_column[0]]) + 1))
                     except:
                         print 'top'
