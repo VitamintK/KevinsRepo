@@ -162,30 +162,14 @@ class InfantAI(DumbAI):
                 if not self.board.col_is_full(self.board.board[col_num]):
                 #get col_is_full to accept col num instead?
                 #print ' '*(1 + col_num * 2) + 'V'
-                    return self.board.add_piece(col_num, self.value) #change this back to normal later (col_num)
+                    return self.board.add_piece(col_num, self.value)
         for considered_column in sorted_streaks:
             if considered_column[1] is not False:
                 if (not self.board.next_space(self.board.board[considered_column[0]]) + 1 < len(self.board.board[considered_column[0]])) or (
-                    considered_column[1] >= self.board.winlength - 1 or (
-                    max(self.board.get_surrounding_streaks(
-                    'O',considered_column[0],
-                    self.board.next_space(self.board.board[considered_column[0]]) + 1)) < self.board.winlength - 1
-                    and max(self.board.get_surrounding_streaks(
-                    'X',considered_column[0],
-                    self.board.next_space(self.board.board[considered_column[0]]) + 1)) < self.board.winlength - 1)):
-                    """try:
-                        print 'O', list(self.board.get_surrounding_streaks(
-                    'O',considered_column[0],
-                    self.board.next_space(self.board.board[considered_column[0]]) + 1))
-                    except:
-                        print 'top'
-                    try:
-                        print 'X', considered_column[0], self.board.next_space(self.board.board[considered_column[0]]) + 1, list(self.board.get_surrounding_streaks(
-                    'X',considered_column[0],
-                    self.board.next_space(self.board.board[considered_column[0]]) + 1))
-                    except:
-                        print 'top'"""
-                    return self.board.add_piece(considered_column[0], self.value)        
+                    considered_column[1] >= self.board.winlength - 1) or all([max(self.board.get_surrounding_streaks(
+                        player.value,considered_column[0], self.board.next_space(
+                        self.board.board[considered_column[0]]) + 1)) < self.board.winlength - 1 for player in self.players]):
+                    return self.board.add_piece(considered_column[0], self.value)
         else:
             return self.board.add_piece(sorted_streaks[0][0], self.value) #this should prefer blocking self over losing immediately
             
@@ -199,7 +183,7 @@ class InfantAI(DumbAI):
 class Game:
     def __init__(self,x,y,winlen):
         self.game_board = Board(x,y,winlen)
-        self.players = [InfantAI('X',self.game_board), Human('O',self.game_board)]
+        self.players = [InfantAI('#',self.game_board), Human('O',self.game_board)]
         for player in self.players:
             player.players = self.players
         self.turnplnum = 0
