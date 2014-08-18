@@ -12,11 +12,13 @@ class Board:
         #to ' ' instead of creating an entirely new list.
 
     def visualize(self):
-        for column in [list(i) for i in reversed(zip(*self.board))]:
-            print '|' + ".".join(column) + '|'
+        #for column in [list(i) for i in reversed(zip(*self.board))]:
+        #    print '|' + ".".join(column) + '|'
+
+        print '\n'.join(['|' + ".".join(column) + '|' for column in [list(i) for i in reversed(zip(*self.board))]])
     def vis_with_num(self):
         self.visualize()
-        print ' ' + ' '.join([str(x) for x in range(len(self.board))]) + ' '
+        print ' ' + ' '.join([str(x%10) for x in range(len(self.board))]) + ' '
     def is_game_over_with_piece(self,x,y): #or do I make piece a class?
         #bad implementation probably
         piece_value = self.board[x][y]
@@ -37,7 +39,7 @@ class Board:
         else:
             return True        #replace usage of this with next_space and delete this method.
 
-    def get_surrounding_streaks(self,value,x,y):
+    def get_surrounding_streaks(self,value,x,y): #either pass a parameter count_spaces = False OR change the value paramater to values list. 
         if self.board[x][y] == value:
             startat = 1
         else:
@@ -76,9 +78,10 @@ class Board:
 
 
 class Player:
-    def __init__(self,value,board):
+    def __init__(self,value,board,players=None):
         self.value = value
         self.board = board
+        self.players = players
 
 
 class Human(Player):
@@ -116,7 +119,7 @@ class ShitAI(AI):
 class TrashAI(AI):
     def move(self):
         while True:
-            col_num = numpy.random.binomial(6,0.5)
+            col_num = numpy.random.binomial(len(self.board.board)-1,0.5)
             if not self.board.col_is_full(self.board.board[col_num]):
             #get col_is_full to accept col num instead?
                 #print ' '*(1 + col_num * 2) + 'V'
@@ -124,12 +127,12 @@ class TrashAI(AI):
 
 class DumbAI(AI):
     def move(self):
-        streaks = [max(x) for x in zip(list(self.max_surrounding_streaks('O')), list(self.max_surrounding_streaks('X')))]
+        streaks = [max(x) for x in zip(*[list(self.max_surrounding_streaks(player.value)) for player in self.players])]
         if max(streaks) > 0:
             return self.board.add_piece(streaks.index(max(streaks)), self.value)
         else:
             while True:
-                col_num = numpy.random.binomial(6,0.5)
+                col_num = numpy.random.binomial(len(self.board.board)-1,0.5)
                 if not self.board.col_is_full(self.board.board[col_num]):
                 #get col_is_full to accept col num instead?
                 #print ' '*(1 + col_num * 2) + 'V'
@@ -151,34 +154,44 @@ class InfantAI(DumbAI):
     OR prevents a longer streak of opponent pieces), BUT without as extreme short-sightedness, because
     3yoAI will not place a piece that will allow its opponent to win the game immediately."""
     def move(self):
-        streaks = [max(x) for x in zip(list(self.max_surrounding_streaks('O')), list(self.max_surrounding_streaks('X')))]
-        if max(streaks) > 0:
-            if (not self.board.next_space(self.board.board[streaks.index(max(streaks))]) + 1 < len(self.board.board[0])) or (
-                max(streaks) >= 3 or (max(self.board.get_surrounding_streaks(
-                'O',streaks.index(max(streaks)),
-                self.board.next_space(self.board.board[streaks.index(max(streaks))]) + 1)) < 3
-                and max(self.board.get_surrounding_streaks(
-                'X',streaks.index(max(streaks)),
-                self.board.next_space(self.board.board[streaks.index(max(streaks))]) + 1)) < 3)):
-
-                return self.board.add_piece(streaks.index(max(streaks)), self.value)
-            else:
-                m1, m2 = (None,None), (None,None)
-                for ind,x in enumerate(streaks):
-                    if x > m1[1]:
-                        m1, m2 = (ind,x), m1
-                    elif x > m2[1] or m2[1] is False:
-                        m2 = (ind,x)
-                 #THIS NEEDS TO BE RECURSIVE: M2 CAN ALSO BE DETRIMENTAL TO WINNING!##################################################
-                if m2[1] is False:
-                    return self.board.add_piece(m1[0], self.value)
-                else:
-                    return self.board.add_piece(m2[0], self.value)
-            #streaks.index(sorted(streaks)[-2])
-
-        else:
+        streaks = [max(x) for x in zip(*[list(self.max_surrounding_streaks(player.value)) for player in self.players])]
+        sorted_streaks = sorted(enumerate(streaks), key = lambda x: x[1], reverse = True) #(index, streak value) ordered by highest value first.
+        if sorted_streaks[0][1] <= 0: #CHANGE THIS TO A SUPER CALL FROM SHITAI
+            print "line 160"
             while True:
-                col_num = numpy.random.binomial(6,0.5)
+                col_num = numpy.random.binomial(len(self.board.board)-1, 0.5)
+                if not self.board.col_is_full(self.board.board[col_num]):
+                #get col_is_full to accept col num instead?
+                #print ' '*(1 + col_num * 2) + 'V'
+                    return self.board.add_piece(13, self.value) #change this back to normal later (col_num)
+        for considered_column in sorted_streaks:
+            print considered_column[0]
+            if considered_column[1] is not False:
+                if (not self.board.next_space(self.board.board[considered_column[0]]) + 1 < len(self.board.board[considered_column[0]])) or (
+                    considered_column[1] >= self.board.winlength - 1 or (
+                    max(self.board.get_surrounding_streaks(
+                    'O',considered_column[0],
+                    self.board.next_space(self.board.board[considered_column[0]]) + 1)) < self.board.winlength - 1
+                    and max(self.board.get_surrounding_streaks(
+                    'X',streaks.index(considered_column[1]),
+                    self.board.next_space(self.board.board[considered_column[0]]) + 1)) < self.board.winlength - 1)):
+                    try:
+                        print 'O', list(self.board.get_surrounding_streaks(
+                    'O',considered_column[0],
+                    self.board.next_space(self.board.board[considered_column[0]]) + 1))
+                    except:
+                        print 'top'
+                    try:
+                        print 'X', list(self.board.get_surrounding_streaks(
+                    'X',streaks.index(considered_column[1]),
+                    self.board.next_space(self.board.board[considered_column[0]]) + 1))
+                    except:
+                        print 'top'
+                    return self.board.add_piece(considered_column[0], self.value)        
+        else:
+            print "line 179"
+            while True: #CHANGE THIS TO A SUPER CALL FROM SHITAI
+                col_num = numpy.random.binomial(len(self.board.board)-1, 0.5)
                 if not self.board.col_is_full(self.board.board[col_num]):
                 #get col_is_full to accept col num instead?
                 #print ' '*(1 + col_num * 2) + 'V'
@@ -195,8 +208,11 @@ class Game:
     def __init__(self,x,y,winlen):
         self.game_board = Board(x,y,winlen)
         self.players = [InfantAI('X',self.game_board), InfantAI('O',self.game_board)]
+        for player in self.players:
+            player.players = self.players
         self.turnplnum = 0
         self.turnpl = self.players[self.turnplnum]
+        
     def play(self): #make this function better!!!!!
         while True:
             print ''
@@ -221,7 +237,7 @@ class Game:
         return self.turnpl.move()
         #return self.game_board.add_piece(col,self.turnpl.value)
 
-g = Game(7,6,4)
+g = Game(30,30,5)
 print g.play()
 
 def test(amt):
