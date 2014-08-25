@@ -1,12 +1,7 @@
 import random
 import numpy
 
-#todo: make  piece class which is basically a node
-# - it should basically have 8 tuples for streaks (or 4).  dunno if each pair will need to be separated (1,1) and (-1,-1) combined?
-# - tuple has 2 streaks: the piece value, and the piece value + blank space.
-# - and an "update" method which recomputes its own streak in a certain direction and recursively
-# - calls the "update" method of the adjacent piece in that direction.
-# - 
+
 
 class Board:
     def __init__(self,x,y,winlength, blank = ' '):
@@ -86,10 +81,27 @@ class Board:
             return col_num, next_space
         else:
             return False
+#todo: make  piece class which is basically a node
+# - it should basically have 8 tuples for streaks (or 4).  dunno if each pair will need to be separated (1,1) and (-1,-1) combined?
+# - tuple has 2 streaks: the piece value, and the piece value + blank space.
+# - and an "update" method which recomputes its own streak in a certain direction and recursively
+# - calls the "update" method of the adjacent piece in that direction.
 
-#class Piece:
-#    def __init__(self,value):
-#        self.value = value
+class Piece:
+    def __init__(self,value,x,y,board):
+        self.value = value
+        self.x = x
+        self.y = y
+
+            
+    def update_surrounding(self):
+        for hor_dif, ver_dif in [(1,0),(1,1),(0,1),(-1,1)]:
+            neighbor = board[x+hor_dif, y+ver_dif]
+            neighbor.update_surrounding
+
+    def update_next(self, x, y, hor_dif, ver_dif):
+        self.neighbors[hor_dif][ver_dif]
+        
 
 
 class Player:
