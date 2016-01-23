@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang = "en">
+	<head>
+		<title>prisoner of benda</title>
+		<link href = "style.css" rel = "stylesheet" type = "text/css">
+	</head>
+	<body>
+		<input type="text" id="player" autofocus placeholder="Number of people to scramble">
+		<button id="go_btn" class="btn btn-primary btn-large">GO</button>
+		<br>
+		<div id="flesh-container"></div>
+		<script>
+			var Flesh = function(body_name, brain_name, element){
+				this.body_name = body_name;
+				this.brain_name = brain_name;
+				this.element = element;
+				this.selected = false;
+				element.addEventListener('click', function(event){this;})
+			}
+			var bodies = [];
+			fc = document.getElementById("flesh-container");
+			for(i = 0; i < 6; i++){
+				cb = document.createElement("input");
+				cb.type = "checkbox";
+				cb.id = 'cb' + i;
+				flesh = document.createElement("label");
+				flesh.htmlFor = 'cb' + i;
+				//flesh.appendChild(document.createTextNode("yolo"));
+				flesh.style.background = "rgb("+Math.floor(Math.random()*100)+",50,50)";
+				fc.appendChild(cb);
+				fc.appendChild(flesh);
+				bodies.push(Flesh('','',flesh));
+			}
+		</script>
+	</body>
+</html>
