@@ -2,7 +2,17 @@ body{
 	text-align: center;
 }
 #flesh-container{
-	min-height: 300px;
+	min-height: 150px;
+}
+x-brain{
+	box-sizing:border-box;
+	display:block;
+	height:50px;
+	width:50px;
+	position:absolute;
+-webkit-transform: translateX(-50%); /* for Safari and iOS */
+    -ms-transform: translateX(-50%); /* for IE9 */
+    transform: translateX(-50%);
 }
 label{
 	height: 100px;
@@ -14,15 +24,18 @@ label{
 	display:inline-block;
 	margin:10px;
 	cursor:pointer;
+	box-sizing: border-box;
+	position:relative;
 }
 input[type=checkbox]{
 	display:none;
 }
 input[type=checkbox]:checked + label{
 	border: 5px solid;
-	height:92px;
+
+	/*height:92px;
 	width:92px;
-	margin:9px;
+	margin:9px;*/
 	-webkit-filter: saturate(200%);
 	-moz-filter: saturate(200%);
 	filter:saturate(200%);

@@ -9,15 +9,46 @@
 		<button id="go_btn" class="btn btn-primary btn-large">GO</button>
 		<br>
 		<div id="flesh-container"></div>
+		<button id = "swap">swap</button> 
 		<script>
-			var Flesh = function(body_name, brain_name, element){
-				this.body_name = body_name;
-				this.brain_name = brain_name;
-				this.element = element;
-				this.selected = false;
-				element.addEventListener('click', function(event){this;})
+			function shuffle (array) {
+			  var i = 0
+			    , j = 0
+			    , temp = null;
+
+			  for (i = array.length - 1; i > 0; i -= 1) {
+			    j = Math.floor(Math.random() * (i + 1))
+			    temp = array[i];
+			    array[i] = array[j];
+			    array[j] = temp;
+			  }
 			}
+			var Brain = function(name, element, bg){
+				this.name = name;
+				this.element = element;
+				this.element.style.background = bg;
+			}
+			var Flesh = function(body_name, brain, element, bg){
+				this.body_name = body_name;
+				this.brain = brain;
+				this.element = element;
+				this.element.style.background = bg;
+				//this.selected = false;
+				//element.addEventListener('click', function(event){this;})
+				console.log(brain);
+				element.appendChild(brain.element);
+			}
+			var brains = [];
 			var bodies = [];
+			var bgs = [];
+			for(k = 0; k < 6; k++){
+				bgs.push("rgb("+Math.floor(Math.random()*100)+",50,50)");
+			}
+			for(j = 0; j < 6; j++){
+				br = document.createElement("x-brain");
+				brains.push(new Brain(j, br, bgs[j]));
+			}
+			shuffle(brains);
 			fc = document.getElementById("flesh-container");
 			for(i = 0; i < 6; i++){
 				cb = document.createElement("input");
@@ -26,10 +57,11 @@
 				flesh = document.createElement("label");
 				flesh.htmlFor = 'cb' + i;
 				//flesh.appendChild(document.createTextNode("yolo"));
-				flesh.style.background = "rgb("+Math.floor(Math.random()*100)+",50,50)";
+				//flesh.style.background = bgs[i];
 				fc.appendChild(cb);
 				fc.appendChild(flesh);
-				bodies.push(Flesh('','',flesh));
+				f = new Flesh('',brains[i],flesh, bgs[i]);
+				bodies.push(f);
 			}
 		</script>
 	</body>
